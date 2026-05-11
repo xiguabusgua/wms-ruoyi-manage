@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 
 @Data
@@ -19,34 +20,52 @@ public class ItemVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     *
+     * 主键
      */
-    @ExcelProperty(value = "")
+    @ExcelProperty(value = "ID")
     private Long id;
 
     /**
-     * 编号
+     * 物料编码
      */
-    @ExcelProperty(value = "编号")
+    @ExcelProperty(value = "物料编码")
     private String itemCode;
 
     /**
-     * 名称
+     * 物料名称
      */
-    @ExcelProperty(value = "名称")
+    @ExcelProperty(value = "物料名称")
     private String itemName;
 
     /**
-     * 分类
+     * 物料分类
      */
-    @ExcelProperty(value = "分类")
+    @ExcelProperty(value = "物料分类")
     private String itemCategory;
 
     /**
-     * 单位类别
+     * 规格型号
      */
-    @ExcelProperty(value = "单位类别")
+    @ExcelProperty(value = "规格型号")
+    private String specModel;
+
+    /**
+     * 单位
+     */
+    @ExcelProperty(value = "单位")
     private String unit;
+
+    /**
+     * 安全库存
+     */
+    @ExcelProperty(value = "安全库存")
+    private BigDecimal safetyStock;
+
+    /**
+     * 计价方式（标准成本/移动平均）
+     */
+    @ExcelProperty(value = "计价方式")
+    private String pricingMethod;
 
     /**
      * 品牌

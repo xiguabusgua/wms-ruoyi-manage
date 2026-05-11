@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
+import java.math.BigDecimal;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -17,30 +18,45 @@ public class Item extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     *
+     * 主键
      */
     @TableId(value = "id")
     private Long id;
 
     /**
-     * 编号
+     * 物料编码
      */
     private String itemCode;
 
     /**
-     * 名称
+     * 物料名称
      */
     private String itemName;
 
     /**
-     * 分类
+     * 物料分类
      */
     private String itemCategory;
 
     /**
-     * 单位类别
+     * 规格型号
+     */
+    private String specModel;
+
+    /**
+     * 单位
      */
     private String unit;
+
+    /**
+     * 安全库存
+     */
+    private BigDecimal safetyStock;
+
+    /**
+     * 计价方式（标准成本/移动平均）
+     */
+    private String pricingMethod;
 
     /**
      * 品牌

@@ -1116,3 +1116,11 @@ INSERT INTO `wms_warehouse` VALUES (1828364740028174337, NULL, '常熟冷链仓'
 INSERT INTO `wms_warehouse` VALUES (1840317750635581441, NULL, '吴江仓', NULL, 3, 'wms2_admin', '2024-09-29 17:08:37.859', 'wms2_admin', '2024-09-29 17:08:37.859');
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- 物料管理功能增强 - 新增字段
+-- ----------------------------
+ALTER TABLE `wms_item`
+ADD COLUMN `spec_model` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '规格型号' AFTER `item_category`,
+ADD COLUMN `safety_stock` decimal(10, 2) NULL DEFAULT NULL COMMENT '安全库存' AFTER `unit`,
+ADD COLUMN `pricing_method` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '计价方式（标准成本/移动平均）' AFTER `safety_stock`;
