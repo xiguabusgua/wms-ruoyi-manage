@@ -36,4 +36,19 @@ public class ReceiptOrderVo extends BaseOrderVo<ReceiptOrderDetailVo> {
      */
     @ExcelProperty(value = "业务订单号")
     private String bizOrderNo;
+
+    /**
+     * 入库类型(1采购入库2生产入库3退货入库4其他入库)
+     */
+    @ExcelProperty(value = "入库类型")
+    private Integer receiptType;
+    /**
+     * 来源单据号
+     */
+    @ExcelProperty(value = "来源单据号")
+    private String sourceOrderNo;
+    /**
+     * 入库类型名称
+     */
+    private String receiptTypeName;
 }

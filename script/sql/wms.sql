@@ -1115,6 +1115,580 @@ INSERT INTO `wms_warehouse` VALUES (1828364609002311682, NULL, '苏州园区', N
 INSERT INTO `wms_warehouse` VALUES (1828364740028174337, NULL, '常熟冷链仓', NULL, 2, 'admin', '2024-08-27 17:31:38.066', 'admin', '2024-08-30 13:55:34.766');
 INSERT INTO `wms_warehouse` VALUES (1840317750635581441, NULL, '吴江仓', NULL, 3, 'wms2_admin', '2024-09-29 17:08:37.859', 'wms2_admin', '2024-09-29 17:08:37.859');
 
+
+-- ----------------------------
+-- Table structure for wms_customer
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_customer`;
+CREATE TABLE `wms_customer` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `customer_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '客户编码',
+  `customer_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '客户名称',
+  `customer_short_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '客户简称',
+  `category_id` bigint(20) NULL DEFAULT NULL COMMENT '客户分类ID',
+  `credit_limit` decimal(12, 2) NULL DEFAULT NULL COMMENT '信用额度',
+  `payment_days` int(11) NULL DEFAULT NULL COMMENT '账期(天)',
+  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '1' COMMENT '状态（0停用 1启用）',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_customer_code` (`customer_code`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '客户档案' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_customer_contact
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_customer_contact`;
+CREATE TABLE `wms_customer_contact` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `customer_id` bigint(20) NOT NULL COMMENT '客户ID',
+  `contact_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '联系人姓名',
+  `position` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '职务',
+  `mobile` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '手机号',
+  `tel` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '座机',
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '邮箱',
+  `is_primary` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'N' COMMENT '是否主要联系人(Y/N)',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_customer_id` (`customer_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '客户联系人' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_customer_address
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_customer_address`;
+CREATE TABLE `wms_customer_address` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `customer_id` bigint(20) NOT NULL COMMENT '客户ID',
+  `contact_person` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '收货人',
+  `contact_phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收货电话',
+  `province` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '省',
+  `city` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '市',
+  `district` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '区',
+  `detail_address` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '详细地址',
+  `is_default` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'N' COMMENT '是否默认地址(Y/N)',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_customer_id` (`customer_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '客户收货地址' ROWFORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_sales_order
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_sales_order`;
+CREATE TABLE `wms_sales_order` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `order_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '订单编号',
+  `customer_id` bigint(20) NOT NULL COMMENT '客户ID',
+  `order_date` datetime(3) NULL DEFAULT NULL COMMENT '订单日期',
+  `delivery_date` date NULL DEFAULT NULL COMMENT '交货日期',
+  `total_quantity` decimal(14, 2) NULL DEFAULT NULL COMMENT '总数量',
+  `total_amount` decimal(14, 2) NULL DEFAULT NULL COMMENT '总金额',
+  `order_status` int(11) NOT NULL DEFAULT 0 COMMENT '订单状态(0待审批 1已审批 2生产中 3已发货 4已完成 5已取消)',
+  `quotation_order_id` bigint(20) NULL DEFAULT NULL COMMENT '关联报价单ID',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_order_no` (`order_no`) USING BTREE,
+  KEY `idx_customer_id` (`customer_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '销售订单' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_sales_order_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_sales_order_detail`;
+CREATE TABLE `wms_sales_order_detail` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `order_id` bigint(20) NOT NULL COMMENT '订单ID',
+  `sku_id` bigint(20) NULL DEFAULT NULL COMMENT '规格ID',
+  `quantity` decimal(14, 2) NOT NULL COMMENT '数量',
+  `unit_price` decimal(12, 2) NOT NULL COMMENT '单价',
+  `amount` decimal(14, 2) NULL DEFAULT NULL COMMENT '金额',
+  `delivery_date` date NULL DEFAULT NULL COMMENT '行交货日期',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_order_id` (`order_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '销售订单明细' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_production_plan
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_production_plan`;
+CREATE TABLE `wms_production_plan` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `plan_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '计划编号',
+  `sales_order_id` bigint(20) NULL DEFAULT NULL COMMENT '关联销售订单ID',
+  `product_id` bigint(20) NOT NULL COMMENT '物料ID',
+  `plan_quantity` decimal(14, 2) NOT NULL COMMENT '计划数量',
+  `produced_quantity` decimal(14, 2) NULL DEFAULT 0.00 COMMENT '已生产数量',
+  `plan_start_date` date NULL DEFAULT NULL COMMENT '计划开始日期',
+  `plan_end_date` date NULL DEFAULT NULL COMMENT '计划结束日期',
+  `priority` int(11) NULL DEFAULT 2 COMMENT '优先级 1-低 2-中 3-高',
+  `plan_status` int(11) NOT NULL DEFAULT 0 COMMENT '计划状态 0-待排产 1-已排产 2-生产中 3-已完成 4-已关闭',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_plan_no` (`plan_no`) USING BTREE,
+  KEY `idx_sales_order_id` (`sales_order_id`) USING BTREE,
+  KEY `idx_product_id` (`product_id`) USING BTREE,
+  KEY `idx_plan_status` (`plan_status`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '生产计划' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_work_order
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_work_order`;
+CREATE TABLE `wms_work_order` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `work_order_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '工单号',
+  `plan_id` bigint(20) NULL DEFAULT NULL COMMENT '生产计划ID',
+  `product_id` bigint(20) NOT NULL COMMENT '物料ID',
+  `planned_quantity` decimal(14, 2) NOT NULL COMMENT '计划数量',
+  `completed_quantity` decimal(14, 2) NULL DEFAULT 0.00 COMMENT '完工数量',
+  `defective_quantity` decimal(14, 2) NULL DEFAULT 0.00 COMMENT '不良数量',
+  `equipment_id` bigint(20) NULL DEFAULT NULL COMMENT '设备ID',
+  `mold_id` bigint(20) NULL DEFAULT NULL COMMENT '模具ID',
+  `work_status` int(11) NOT NULL DEFAULT 0 COMMENT '工单状态 0-待生产 1-生产中 2-暂停 3-已完成 4-已取消',
+  `actual_start_time` datetime(3) NULL DEFAULT NULL COMMENT '实际开始时间',
+  `actual_end_time` datetime(3) NULL DEFAULT NULL COMMENT '实际结束时间',
+  `operator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '操作人',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_work_order_no` (`work_order_no`) USING BTREE,
+  KEY `idx_plan_id` (`plan_id`) USING BTREE,
+  KEY `idx_product_id` (`product_id`) USING BTREE,
+  KEY `idx_equipment_id` (`equipment_id`) USING BTREE,
+  KEY `idx_work_status` (`work_status`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '工单/派工单' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_work_report
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_work_report`;
+CREATE TABLE `wms_work_report` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `work_order_id` bigint(20) NOT NULL COMMENT '工单ID',
+  `report_type` int(11) NOT NULL COMMENT '报工类型 1-开工 2-完工',
+  `report_time` datetime(3) NULL DEFAULT NULL COMMENT '报工时间',
+  `quantity` decimal(14, 2) NULL DEFAULT 0.00 COMMENT '数量',
+  `defective_quantity` decimal(14, 2) NULL DEFAULT 0.00 COMMENT '不良数量',
+  `operator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '操作人',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_work_order_id` (`work_order_id`) USING BTREE,
+  KEY `idx_report_type` (`report_type`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '报工记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_production_exception
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_production_exception`;
+CREATE TABLE `wms_production_exception` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `work_order_id` bigint(20) NOT NULL COMMENT '工单ID',
+  `exception_type` int(11) NOT NULL COMMENT '异常类型 1-设备故障 2-缺料 3-质量 4-其他',
+  `exception_desc` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '异常描述',
+  `report_time` datetime(3) NULL DEFAULT NULL COMMENT '上报时间',
+  `handle_status` int(11) NOT NULL DEFAULT 0 COMMENT '处理状态 0-未处理 1-处理中 2-已解决',
+  `handle_result` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '处理结果',
+  `report_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '上报人',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_work_order_id` (`work_order_id`) USING BTREE,
+  KEY `idx_exception_type` (`exception_type`) USING BTREE,
+  KEY `idx_handle_status` (`handle_status`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '生产异常上报' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_production_daily_report
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_production_daily_report`;
+CREATE TABLE `wms_production_daily_report` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `report_date` date NOT NULL COMMENT '报告日期',
+  `work_order_id` bigint(20) NOT NULL COMMENT '工单ID',
+  `product_id` bigint(20) NOT NULL COMMENT '物料ID',
+  `plan_quantity` decimal(14, 2) NULL DEFAULT NULL COMMENT '计划数量',
+  `completed_quantity` decimal(14, 2) NULL DEFAULT 0.00 COMMENT '完工数量',
+  `defective_quantity` decimal(14, 2) NULL DEFAULT 0.00 COMMENT '不良数量',
+  `yield_rate` decimal(6, 2) NULL DEFAULT NULL COMMENT '良率(%)',
+  `operator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '操作人',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_report_date` (`report_date`) USING BTREE,
+  KEY `idx_work_order_id` (`work_order_id`) USING BTREE,
+  KEY `idx_product_id` (`product_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '生产日报' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- 七、设备管理模块
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_equipment_info (设备台账)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_equipment_info`;
+CREATE TABLE `wms_equipment_info` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `equipment_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '设备编码',
+  `equipment_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '设备名称',
+  `equipment_type` int(4) NULL DEFAULT NULL COMMENT '设备类型（1冲床 2剪板机 3折弯机 4其他）',
+  `category_id` bigint(20) NULL DEFAULT NULL COMMENT '分类ID',
+  `model` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '型号',
+  `specification` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '规格参数',
+  `manufacturer` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '制造商',
+  `purchase_date` date NULL DEFAULT NULL COMMENT '购买日期',
+  `location` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '安装位置',
+  `equipment_status` int(4) NULL DEFAULT 0 COMMENT '设备状态（0运行 1停机 2维修中 3故障 4封存）',
+  `power` decimal(10, 2) NULL DEFAULT NULL COMMENT '功率(kW)',
+  `oee_target` decimal(6, 2) NULL DEFAULT NULL COMMENT '目标OEE',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_equipment_code` (`equipment_code`) USING BTREE,
+  KEY `idx_category_id` (`category_id`) USING BTREE,
+  KEY `idx_equipment_status` (`equipment_status`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '设备台账' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_equipment_category (设备分类)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_equipment_category`;
+CREATE TABLE `wms_equipment_category` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `parent_id` bigint(20) NULL DEFAULT 0 COMMENT '父分类ID',
+  `category_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '分类名称',
+  `order_num` int(11) NULL DEFAULT 0 COMMENT '排序',
+  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '1' COMMENT '状态（0停用 1正常）',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_parent_id` (`parent_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '设备分类' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_equipment_maintenance (设备维护记录)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_equipment_maintenance`;
+CREATE TABLE `wms_equipment_maintenance` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `equipment_id` bigint(20) NOT NULL COMMENT '设备ID',
+  `maintenance_type` int(4) NULL DEFAULT NULL COMMENT '维护类型（1保养 2维修 3故障）',
+  `maintenance_content` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '维护内容',
+  `maintenance_date` date NULL DEFAULT NULL COMMENT '维护日期',
+  `next_date` date NULL DEFAULT NULL COMMENT '下次维护日期',
+  `cost` decimal(10, 2) NULL DEFAULT NULL COMMENT '费用',
+  `status` int(4) NULL DEFAULT 0 COMMENT '状态（0计划中 1进行中 2完成）',
+  `operator` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '操作人',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_equipment_id` (`equipment_id`) USING BTREE,
+  KEY `idx_maintenance_type` (`maintenance_type`) USING BTREE,
+  KEY `idx_status` (`status`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '设备维护记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_oee_record (OEE记录)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_oee_record`;
+CREATE TABLE `wms_oee_record` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `equipment_id` bigint(20) NOT NULL COMMENT '设备ID',
+  `record_date` date NOT NULL COMMENT '记录日期',
+  `planned_time` int(11) NULL DEFAULT NULL COMMENT '计划时间(min)',
+  `run_time` int(11) NULL DEFAULT NULL COMMENT '实际运行时间(min)',
+  `downtime` int(11) NULL DEFAULT NULL COMMENT '停机时间(min)',
+  `good_count` int(11) NULL DEFAULT NULL COMMENT '合格品数',
+  `total_count` int(11) NULL DEFAULT NULL COMMENT '总产量',
+  `availability_rate` decimal(6, 2) NULL DEFAULT NULL COMMENT '可用率',
+  `performance_rate` decimal(6, 2) NULL DEFAULT NULL COMMENT '性能率',
+  `quality_rate` decimal(6, 2) NULL DEFAULT NULL COMMENT '品质率',
+  `oee` decimal(6, 2) NULL DEFAULT NULL COMMENT '综合效率(OEE)',
+  `fault_count` int(11) NULL DEFAULT 0 COMMENT '故障次数',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_equipment_id` (`equipment_id`) USING BTREE,
+  KEY `idx_record_date` (`record_date`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'OEE记录' ROWFORMAT = Dynamic;
+
+-- ----------------------------
+-- 八、采购管理模块
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_purchase_requisition (采购申请)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_purchase_requisition`;
+CREATE TABLE `wms_purchase_requisition` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `requisition_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '申请编号',
+  `requisition_type` int(4) NULL DEFAULT NULL COMMENT '申请类型（1生产用料 2办公用品 3设备备件 4其他）',
+  `applicant` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '申请人',
+  `apply_date` date NULL DEFAULT NULL COMMENT '申请日期',
+  `dept_id` bigint(20) NULL DEFAULT NULL COMMENT '部门ID',
+  `urgent_level` int(4) NULL DEFAULT 1 COMMENT '紧急程度（1正常 2紧急 3特急）',
+  `total_amount` decimal(14, 2) NULL DEFAULT NULL COMMENT '总金额',
+  `approval_status` int(4) NULL DEFAULT 0 COMMENT '审批状态（0待审批 1已审批 2已驳回 3已关闭）',
+  `approver_id` bigint(20) NULL DEFAULT NULL COMMENT '审批人ID',
+  `approve_time` datetime(3) NULL DEFAULT NULL COMMENT '审批时间',
+  `approve_remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '审批意见',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_requisition_no` (`requisition_no`) USING BTREE,
+  KEY `idx_approval_status` (`approval_status`) USING BTREE,
+  KEY `idx_dept_id` (`dept_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '采购申请' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_purchase_requisition_detail (采购申请明细)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_purchase_requisition_detail`;
+CREATE TABLE `wms_purchase_requisition_detail` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `requisition_id` bigint(20) NOT NULL COMMENT '采购申请ID',
+  `item_id` bigint(20) NULL DEFAULT NULL COMMENT '物料ID',
+  `sku_id` bigint(20) NULL DEFAULT NULL COMMENT '规格ID',
+  `quantity` decimal(14, 2) NOT NULL COMMENT '需求数量',
+  `unit_price` decimal(12, 2) NULL DEFAULT NULL COMMENT '预估单价',
+  `amount` decimal(14, 2) NULL DEFAULT NULL COMMENT '预估金额',
+  `demand_date` date NULL DEFAULT NULL COMMENT '需求日期',
+  `supplier_id` bigint(20) NULL DEFAULT NULL COMMENT '建议供应商ID',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_requisition_id` (`requisition_id`) USING BTREE,
+  KEY `idx_item_id` (`item_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '采购申请明细' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_purchase_order (采购订单)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_purchase_order`;
+CREATE TABLE `wms_purchase_order` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `order_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '订单编号',
+  `requisition_id` bigint(20) NULL DEFAULT NULL COMMENT '关联申请ID',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
+  `order_date` date NULL DEFAULT NULL COMMENT '订单日期',
+  `expect_arrival_date` date NULL DEFAULT NULL COMMENT '期望到货日期',
+  `total_amount` decimal(14, 2) NULL DEFAULT NULL COMMENT '总金额',
+  `order_status` int(4) NULL DEFAULT 0 COMMENT '订单状态（0待审批 1已审批 2部分到货 3全部到货 4已关闭 5已取消）',
+  `receiver` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '收货人',
+  `warehouse_id` bigint(20) NULL DEFAULT NULL COMMENT '收货仓库ID',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_order_no` (`order_no`) USING BTREE,
+  KEY `idx_supplier_id` (`supplier_id`) USING BTREE,
+  KEY `idx_order_status` (`order_status`) USING BTREE,
+  KEY `idx_warehouse_id` (`warehouse_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '采购订单' ROWFORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_purchase_order_detail (采购订单明细)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_purchase_order_detail`;
+CREATE TABLE `wms_purchase_order_detail` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `order_id` bigint(20) NOT NULL COMMENT '采购订单ID',
+  `item_id` bigint(20) NULL DEFAULT NULL COMMENT '物料ID',
+  `sku_id` bigint(20) NULL DEFAULT NULL COMMENT '规格ID',
+  `quantity` decimal(14, 2) NOT NULL COMMENT '采购数量',
+  `unit_price` decimal(12, 2) NOT NULL COMMENT '单价',
+  `received_quantity` decimal(14, 2) NULL DEFAULT 0.00 COMMENT '已收数量',
+  `amount` decimal(14, 2) NULL DEFAULT NULL COMMENT '金额',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_order_id` (`order_id`) USING BTREE,
+  KEY `idx_item_id` (`item_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '采购订单明细' ROWFORMAT = Dynamic;
+
+-- ----------------------------
+-- 十一、BOM管理模块
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_bom_main (BOM主表)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_bom_main`;
+CREATE TABLE `wms_bom_main` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `bom_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'BOM编码',
+  `bom_version` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '版本号',
+  `product_id` bigint(20) NOT NULL COMMENT '产品ID',
+  `bom_status` int(4) NULL DEFAULT 0 COMMENT 'BOM状态（0草稿 1正式 2失效）',
+  `effective_date` date NULL DEFAULT NULL COMMENT '生效日期',
+  `expire_date` date NULL DEFAULT NULL COMMENT '失效日期',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_bom_code` (`bom_code`) USING BTREE,
+  KEY `idx_product_id` (`product_id`) USING BTREE,
+  KEY `idx_bom_status` (`bom_status`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'BOM主表' ROWFORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_bom_detail (BOM明细)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_bom_detail`;
+CREATE TABLE `wms_bom_detail` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `bom_id` bigint(20) NOT NULL COMMENT 'BOM主表ID',
+  `item_id` bigint(20) NULL DEFAULT NULL COMMENT '子件物料ID',
+  `sku_id` bigint(20) NULL DEFAULT NULL COMMENT '子件规格ID',
+  `quantity` decimal(14, 4) NOT NULL COMMENT '用量',
+  `unit` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '单位',
+  `loss_rate` decimal(6, 2) NULL DEFAULT 0.00 COMMENT '损耗率',
+  `position` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '位号',
+  `is_key_part` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'N' COMMENT '是否关键件(Y/N)',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_bom_id` (`bom_id`) USING BTREE,
+  KEY `idx_item_id` (`item_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'BOM明细' ROWFORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_bom_version (BOM版本记录)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_bom_version`;
+CREATE TABLE `wms_bom_version` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `bom_id` bigint(20) NOT NULL COMMENT 'BOM主表ID',
+  `version_no` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '版本号',
+  `change_desc` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '变更说明',
+  `change_by` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '变更人',
+  `change_time` datetime(3) NULL DEFAULT NULL COMMENT '变更时间',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_bom_id` (`bom_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'BOM版本记录' ROWFORMAT = Dynamic;
+
+-- ----------------------------
+-- 十一、工艺路线管理模块
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_process_route (工艺路线主表)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_process_route`;
+CREATE TABLE `wms_process_route` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `route_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '路线编码',
+  `route_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '路线名称',
+  `product_id` bigint(20) NOT NULL COMMENT '产品ID',
+  `route_status` int(4) NULL DEFAULT 0 COMMENT '路线状态（0草稿 1启用 2停用）',
+  `version` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '版本',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_route_code` (`route_code`) USING BTREE,
+  KEY `idx_product_id` (`product_id`) USING BTREE,
+  KEY `idx_route_status` (`route_status`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '工艺路线主表' ROWFORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_route_step (工序步骤)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_route_step`;
+CREATE TABLE `wms_route_step` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `route_id` bigint(20) NOT NULL COMMENT '工艺路线ID',
+  `step_no` int(4) NOT NULL COMMENT '工序序号',
+  `step_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '工序名称',
+  `equipment_id` bigint(20) NULL DEFAULT NULL COMMENT '所需设备ID',
+  `standard_time` int(11) NULL DEFAULT NULL COMMENT '标准工时(分钟)',
+  `setup_time` int(11) NULL DEFAULT NULL COMMENT '准备时间(分钟)',
+  `labor_cost` decimal(10, 2) NULL DEFAULT NULL COMMENT '人工成本',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '工序说明',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_route_id` (`route_id`) USING BTREE,
+  KEY `idx_equipment_id` (`equipment_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '工序步骤' ROWFORMAT = Dynamic;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ----------------------------
@@ -1124,3 +1698,376 @@ ALTER TABLE `wms_item`
 ADD COLUMN `spec_model` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '规格型号' AFTER `item_category`,
 ADD COLUMN `safety_stock` decimal(10, 2) NULL DEFAULT NULL COMMENT '安全库存' AFTER `unit`,
 ADD COLUMN `pricing_method` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '计价方式（标准成本/移动平均）' AFTER `safety_stock`;
+
+-- ----------------------------
+-- 质量管理模块 - 建表语句
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_inspection_task
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_inspection_task`;
+CREATE TABLE `wms_inspection_task` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `task_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '任务编号',
+  `inspection_type` int(11) NOT NULL COMMENT '检验类型(1IQC来料 2IPQC过程 3FQC成品)',
+  `source_order_id` bigint(20) NULL DEFAULT NULL COMMENT '来源单据ID',
+  `source_order_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '来源单据号',
+  `product_id` bigint(20) NULL DEFAULT NULL COMMENT '物料ID',
+  `batch_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '批次号',
+  `quantity` decimal(14, 2) NULL DEFAULT NULL COMMENT '抽检数量',
+  `task_status` int(11) NOT NULL DEFAULT 0 COMMENT '任务状态(0待检 1检验中 2合格 3不合格 4让步接收)',
+  `inspector` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '检验员',
+  `inspect_time` datetime(3) NULL DEFAULT NULL COMMENT '检验时间',
+  `conclusion` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '检验结论',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_task_no` (`task_no`) USING BTREE,
+  KEY `idx_inspection_type` (`inspection_type`) USING BTREE,
+  KEY `idx_product_id` (`product_id`) USING BTREE,
+  KEY `idx_task_status` (`task_status`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '检验任务' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_inspection_item
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_inspection_item`;
+CREATE TABLE `wms_inspection_item` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `task_id` bigint(20) NOT NULL COMMENT '检验任务ID',
+  `item_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '项目名称',
+  `standard_value` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '标准值',
+  `unit` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '单位',
+  `upper_limit` decimal(14, 4) NULL DEFAULT NULL COMMENT '上限',
+  `lower_limit` decimal(14, 4) NULL DEFAULT NULL COMMENT '下限',
+  `measured_value` decimal(14, 4) NULL DEFAULT NULL COMMENT '实测值',
+  `result` int(11) NULL DEFAULT NULL COMMENT '结果(1合格 2不合格)',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_task_id` (`task_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '检验项目' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_iqc_inspection
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_iqc_inspection`;
+CREATE TABLE `wms_iqc_inspection` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `task_id` bigint(20) NOT NULL COMMENT '检验任务ID',
+  `receipt_order_id` bigint(20) NULL DEFAULT NULL COMMENT '入库单ID',
+  `supplier_id` bigint(20) NULL DEFAULT NULL COMMENT '供应商ID',
+  `material_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '物料名称',
+  `spec_model` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '规格型号',
+  `batch_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '批次号',
+  `quantity` decimal(14, 2) NULL DEFAULT NULL COMMENT '来料数量',
+  `inspect_quantity` decimal(14, 2) NULL DEFAULT NULL COMMENT '检验数量',
+  `defect_quantity` decimal(14, 2) NULL DEFAULT NULL COMMENT '不良数',
+  `conclusion` int(11) NULL DEFAULT NULL COMMENT '结论(1合格 2不合格 3让步接收特采)',
+  `handle_method` int(11) NULL DEFAULT NULL COMMENT '处理方式(1退货 2换货 3特采 4筛选)',
+  `handle_remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '处理说明',
+  `inspector` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '检验员',
+  `inspect_time` datetime(3) NULL DEFAULT NULL COMMENT '检验时间',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_task_id` (`task_id`) USING BTREE,
+  KEY `idx_supplier_id` (`supplier_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '来料检验详情' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_ipqc_inspection
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_ipqc_inspection`;
+CREATE TABLE `wms_ipqc_inspection` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `task_id` bigint(20) NOT NULL COMMENT '检验任务ID',
+  `inspection_sub_type` int(11) NULL DEFAULT NULL COMMENT '检验子类型(1首件检验 2巡检 3抽检)',
+  `work_order_id` bigint(20) NULL DEFAULT NULL COMMENT '工单ID',
+  `station_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '工序/工位',
+  `product_id` bigint(20) NULL DEFAULT NULL COMMENT '物料ID',
+  `sample_size` int(11) NULL DEFAULT NULL COMMENT '抽样数量',
+  `defect_quantity` int(11) NULL DEFAULT NULL COMMENT '不良数',
+  `is_stop_line` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'N' COMMENT '是否停线(Y/N)',
+  `stop_reason` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '停线原因',
+  `inspector` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '检验员',
+  `inspect_time` datetime(3) NULL DEFAULT NULL COMMENT '检验时间',
+  `conclusion` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '检验结论',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_task_id` (`task_id`) USING BTREE,
+  KEY `idx_work_order_id` (`work_order_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '过程检验' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_fqc_inspection
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_fqc_inspection`;
+CREATE TABLE `wms_fqc_inspection` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `task_id` bigint(20) NOT NULL COMMENT '检验任务ID',
+  `receipt_order_id` bigint(20) NULL DEFAULT NULL COMMENT '入库单ID(生产入库)',
+  `work_order_id` bigint(20) NULL DEFAULT NULL COMMENT '工单ID',
+  `product_id` bigint(20) NULL DEFAULT NULL COMMENT '物料ID',
+  `batch_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '批次号',
+  `quantity` decimal(14, 2) NULL DEFAULT NULL COMMENT '检验数量',
+  `defect_quantity` decimal(14, 2) NULL DEFAULT NULL COMMENT '不良数',
+  `customer_inspect` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'N' COMMENT '是否客户验货(Y/N)',
+  `customer_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '客户名称',
+  `conclusion` int(11) NULL DEFAULT NULL COMMENT '结论(1合格 2不合格)',
+  `inspector` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '检验员',
+  `inspect_time` datetime(3) NULL DEFAULT NULL COMMENT '检验时间',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_task_id` (`task_id`) USING BTREE,
+  KEY `idx_work_order_id` (`work_order_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '成品检验' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_quality_traceability
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_quality_traceability`;
+CREATE TABLE `wms_quality_traceability` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `trace_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '追溯编号',
+  `product_id` bigint(20) NOT NULL COMMENT '物料ID',
+  `batch_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '批次号',
+  `serial_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '序列号',
+  `source_material_batch` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '原材料批次',
+  `work_order_id` bigint(20) NULL DEFAULT NULL COMMENT '生产工单',
+  `iqc_task_id` bigint(20) NULL DEFAULT NULL COMMENT 'IQC任务ID',
+  `ipqc_task_id` bigint(20) NULL DEFAULT NULL COMMENT 'IPQC任务ID',
+  `fqc_task_id` bigint(20) NULL DEFAULT NULL COMMENT 'FQC任务ID',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_trace_no` (`trace_no`) USING BTREE,
+  KEY `idx_product_id` (`product_id`) USING BTREE,
+  KEY `idx_batch_no` (`batch_no`) USING BTREE,
+  KEY `idx_serial_no` (`serial_no`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '质量追溯' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_non_conforming_record
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_non_conforming_record`;
+CREATE TABLE `wms_non_conforming_record` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `record_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '记录编号',
+  `inspection_type` int(11) NULL DEFAULT NULL COMMENT '检验类型(1IQC 2IPQC 3FQC)',
+  `inspection_task_id` bigint(20) NULL DEFAULT NULL COMMENT '检验任务ID',
+  `product_id` bigint(20) NULL DEFAULT NULL COMMENT '物料ID',
+  `defect_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '缺陷类型',
+  `defect_desc` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '缺陷描述',
+  `defect_quantity` decimal(14, 2) NULL DEFAULT NULL COMMENT '缺陷数量',
+  `severity` int(11) NULL DEFAULT NULL COMMENT '严重程度(1轻微 2一般 3严重)',
+  `disposition` int(11) NULL DEFAULT NULL COMMENT '处置方式(1返工 2报废 3特采 4让步)',
+  `operator` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '操作人',
+  `occur_time` datetime(3) NULL DEFAULT NULL COMMENT '发生时间',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_record_no` (`record_no`) USING BTREE,
+  KEY `idx_inspection_type` (`inspection_type`) USING BTREE,
+  KEY `idx_product_id` (`product_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '不良记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_customer_complaint
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_customer_complaint`;
+CREATE TABLE `wms_customer_complaint` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `complaint_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '投诉编号',
+  `customer_id` bigint(20) NOT NULL COMMENT '客户ID',
+  `order_id` bigint(20) NULL DEFAULT NULL COMMENT '销售订单ID',
+  `product_id` bigint(20) NULL DEFAULT NULL COMMENT '物料ID',
+  `complaint_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '投诉类型',
+  `complaint_desc` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '投诉描述',
+  `quantity` decimal(14, 2) NULL DEFAULT NULL COMMENT '涉及数量',
+  `complaint_date` date NULL DEFAULT NULL COMMENT '投诉日期',
+  `handler` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '处理人',
+  `handle_status` int(11) NOT NULL DEFAULT 0 COMMENT '处理状态(0待处理 1处理中 2已关闭)',
+  `handle_result` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '处理结果',
+  `close_date` date NULL DEFAULT NULL COMMENT '关闭日期',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `create_time` datetime(3) NULL DEFAULT NULL,
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `update_time` datetime(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_complaint_no` (`complaint_no`) USING BTREE,
+  KEY `idx_customer_id` (`customer_id`) USING BTREE,
+  KEY `idx_handle_status` (`handle_status`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '客户投诉' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- 四、模具管理模块（行业特色）
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_mold_info (模具台账)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_mold_info`;
+CREATE TABLE `wms_mold_info` (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `mold_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '模具编号',
+  `mold_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '模具名称',
+  `mold_type` int(4) NULL DEFAULT NULL COMMENT '模具类型（1连续模 2工程模 3复合模 4其他）',
+  `product_id` bigint(20) NULL DEFAULT NULL COMMENT '适用产品ID',
+  `design_life` decimal(10, 2) NULL DEFAULT NULL COMMENT '设计寿命(万次)',
+  `current_life` decimal(10, 2) NULL DEFAULT NULL COMMENT '当前寿命(万次)',
+  `total_stroke` decimal(14, 2) NULL DEFAULT NULL COMMENT '累计冲次',
+  `mold_status` int(4) NULL DEFAULT 0 COMMENT '模具状态（0正常 1维修中 2报废 3借用中）',
+  `storage_location` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '存放位置',
+  `manufacturer` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '制造商',
+  `purchase_date` date NULL DEFAULT NULL COMMENT '购买日期',
+  `image_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '图片URL',
+  `drawing_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '图纸URL',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_mold_code` (`mold_code`) USING BTREE,
+  KEY `idx_mold_status` (`mold_status`) USING BTREE,
+  KEY `idx_mold_type` (`mold_type`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '模具台账' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_mold_category (模具分类)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_mold_category`;
+CREATE TABLE `wms_mold_category` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '分类ID',
+  `parent_id` bigint(20) NULL DEFAULT 0 COMMENT '父分类ID',
+  `category_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '分类名称',
+  `order_num` int(11) NULL DEFAULT 0 COMMENT '排序',
+  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '1' COMMENT '状态（0停用 1正常）',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_parent_id` (`parent_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '模具分类' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_mold_maintenance (保养记录)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_mold_maintenance`;
+CREATE TABLE `wms_mold_maintenance` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `mold_id` bigint(20) NOT NULL COMMENT '模具ID',
+  `maintenance_type` int(4) NULL DEFAULT NULL COMMENT '保养类型（1日常保养 2定期保养 3维修）',
+  `maintenance_content` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '保养内容',
+  `maintenance_date` date NULL DEFAULT NULL COMMENT '保养日期',
+  `maintainer` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '保养人',
+  `cost` decimal(10, 2) NULL DEFAULT NULL COMMENT '费用',
+  `next_date` date NULL DEFAULT NULL COMMENT '下次保养日期',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_mold_id` (`mold_id`) USING BTREE,
+  KEY `idx_next_date` (`next_date`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '模具保养记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_mold_repair (维修记录)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_mold_repair`;
+CREATE TABLE `wms_mold_repair` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `mold_id` bigint(20) NOT NULL COMMENT '模具ID',
+  `repair_apply_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '维修申请单号',
+  `fault_description` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '故障描述',
+  `repair_content` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '维修内容',
+  `replaced_parts` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更换零件',
+  `repair_start_date` date NULL DEFAULT NULL COMMENT '维修开始日期',
+  `repair_end_date` date NULL DEFAULT NULL COMMENT '维修结束日期',
+  `repair_status` int(4) NULL DEFAULT 0 COMMENT '维修状态（0维修中 1已完成）',
+  `cost` decimal(10, 2) NULL DEFAULT NULL COMMENT '维修费',
+  `repairer` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '维修人',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_repair_apply_no` (`repair_apply_no`) USING BTREE,
+  KEY `idx_mold_id` (`mold_id`) USING BTREE,
+  KEY `idx_repair_status` (`repair_status`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '模具维修记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_mold_life_record (冲次记录/寿命记录)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_mold_life_record`;
+CREATE TABLE `wms_mold_life_record` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `mold_id` bigint(20) NOT NULL COMMENT '模具ID',
+  `record_date` date NULL DEFAULT NULL COMMENT '记录日期',
+  `stroke_count` decimal(14, 2) NULL DEFAULT NULL COMMENT '本次冲次',
+  `accumulate_stroke` decimal(14, 2) NULL DEFAULT NULL COMMENT '累计冲次',
+  `source` int(4) NULL DEFAULT NULL COMMENT '数据来源（1PLC自动 2手工录入）',
+  `work_order_id` bigint(20) NULL DEFAULT NULL COMMENT '关联工单',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_mold_id` (`mold_id`) USING BTREE,
+  KEY `idx_record_date` (`record_date`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '模具冲次/寿命记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for wms_mold_borrow (模具借用归还)
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_mold_borrow`;
+CREATE TABLE `wms_mold_borrow` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `mold_id` bigint(20) NOT NULL COMMENT '模具ID',
+  `borrow_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '借用工单号',
+  `borrower` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '借用人',
+  `borrow_date` datetime(3) NULL DEFAULT NULL COMMENT '借用时间',
+  `return_date` datetime(3) NULL DEFAULT NULL COMMENT '归还时间',
+  `borrow_status` int(4) NULL DEFAULT 0 COMMENT '借用状态（0在用 1已归还）',
+  `work_order_id` bigint(20) NULL DEFAULT NULL COMMENT '关联工单',
+  `return_check_result` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '归还检查结果',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime(3) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime(3) NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_borrow_no` (`borrow_no`) USING BTREE,
+  KEY `idx_mold_id` (`mold_id`) USING BTREE,
+  KEY `idx_borrow_status` (`borrow_status`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '模具借用归还' ROWFORMAT = Dynamic;
