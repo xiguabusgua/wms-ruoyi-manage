@@ -46,4 +46,16 @@ public class ServiceConstants {
         public static final Integer PENDING = 0;
         public static final Integer FINISH = 1;
     }
+
+    /**
+     * 报价单状态
+     */
+    public class QuotationOrderStatus {
+        public static final Integer DRAFT = 0;
+        public static final Integer PENDING_APPROVAL = 1;
+        public static final Integer APPROVED = 2;
+        public static final Integer REJECTED = 3;
+        public static final Integer CONVERTED = 4;
+        public static final Integer EXPIRED = 5;
+    }
 }
