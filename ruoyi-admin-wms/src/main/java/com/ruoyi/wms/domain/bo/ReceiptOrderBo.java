@@ -40,4 +40,17 @@ public class ReceiptOrderBo extends BaseOrderBo<ReceiptOrderDetailBo> {
     @NotNull(message = "仓库不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long warehouseId;
 
+    /**
+     * 入库类型(1采购入库2生产入库3退货入库4其他入库)
+     */
+    private Integer receiptType;
+    /**
+     * 来源单据ID
+     */
+    private Long sourceOrderId;
+    /**
+     * 来源单据号
+     */
+    private String sourceOrderNo;
+
 }

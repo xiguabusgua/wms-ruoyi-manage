@@ -101,6 +101,8 @@ public class ItemService {
             lqw.in(Item::getItemCategory, subIdList);
         }
         lqw.eq(StrUtil.isNotBlank(bo.getUnit()), Item::getUnit, bo.getUnit());
+        lqw.like(StrUtil.isNotBlank(bo.getSpecModel()), Item::getSpecModel, bo.getSpecModel());
+        lqw.eq(StrUtil.isNotBlank(bo.getPricingMethod()), Item::getPricingMethod, bo.getPricingMethod());
         return lqw;
     }
 
@@ -141,8 +143,16 @@ public class ItemService {
      * 保存前的数据校验
      */
     private void validateBoBeforeSave(ItemBo itemBo) {
+        validateItemCode(itemBo);
         validateItemName(itemBo);
         validateItemSkuName(itemBo.getSku());
+    }
+
+    private void validateItemCode(ItemBo item) {
+        LambdaQueryWrapper<Item> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.eq(Item::getItemCode, item.getItemCode());
+        queryWrapper.ne(item.getId() != null, Item::getId, item.getId());
+        Assert.isTrue(itemMapper.selectCount(queryWrapper) == 0, "物料编码重复");
     }
 
     private void validateItemName(ItemBo item) {

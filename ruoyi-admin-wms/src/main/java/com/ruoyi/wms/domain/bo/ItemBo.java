@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -18,9 +19,9 @@ import java.util.List;
 public class ItemBo extends BaseEntity {
 
     /**
-     *
+     * 主键
      */
-    @NotNull(message = "不能为空", groups = { EditGroup.class })
+    @NotNull(message = "主键不能为空", groups = { EditGroup.class })
     private Long id;
 
     /**
@@ -29,26 +30,44 @@ public class ItemBo extends BaseEntity {
     private List<Long> ids;
 
     /**
-     * 编号
+     * 物料编码
      */
+    @NotBlank(message = "物料编码不能为空", groups = { AddGroup.class, EditGroup.class })
     private String itemCode;
 
     /**
-     * 名称
+     * 物料名称
      */
-    @NotBlank(message = "名称不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotBlank(message = "物料名称不能为空", groups = { AddGroup.class, EditGroup.class })
     private String itemName;
 
     /**
-     * 分类
+     * 物料分类
      */
-    @NotBlank(message = "分类不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotBlank(message = "物料分类不能为空", groups = { AddGroup.class, EditGroup.class })
     private String itemCategory;
 
     /**
-     * 单位类别
+     * 规格型号
      */
+    private String specModel;
+
+    /**
+     * 单位
+     */
+    @NotBlank(message = "单位不能为空", groups = { AddGroup.class, EditGroup.class })
     private String unit;
+
+    /**
+     * 安全库存
+     */
+    private BigDecimal safetyStock;
+
+    /**
+     * 计价方式（标准成本/移动平均）
+     */
+    @NotBlank(message = "计价方式不能为空", groups = { AddGroup.class, EditGroup.class })
+    private String pricingMethod;
 
     /**
      * 品牌
